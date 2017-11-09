@@ -8,6 +8,7 @@ namespace TagsCloudVisualization
     class CircularCloudLayouter
     {
         private readonly Spiral spiral;
+        //хоть поле и readonly, можно изи изменять содержимое листа
         public readonly List<Rectangle> Rectangles = new List<Rectangle>();
         public readonly Point Center;
         public CircularCloudLayouter(Point center)
@@ -24,7 +25,10 @@ namespace TagsCloudVisualization
             {
                 var point = spiral.NextPoint;
                 var rectangle = new Rectangle(point, rectangleSize);
-                if (rectangle.IntersectsWith(Rectangles)) continue;
+                
+                if (rectangle.IntersectsWith(Rectangles))
+                    continue;
+                
                 Rectangles.Add(rectangle);
                 return rectangle;
             }

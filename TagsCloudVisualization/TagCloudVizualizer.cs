@@ -12,6 +12,8 @@ namespace TagsCloudVisualization
         private Graphics graphics;
         private readonly string filepath;
         private readonly Random rnd = new Random();
+        
+        private readonly FontFamily fontFamily = new FontFamily("Calibri");
         private const int MaxFontSize = 96;
         private const int MinFontSize = 24;
 
@@ -22,12 +24,13 @@ namespace TagsCloudVisualization
             var wordRects = new List<(string Word, Font Font, Rectangle rect)>();
             var center = Point.Empty;
             var layouter = new CircularCloudLayouter(center);
+            //магическое знание о том, что сверху нам должны отдать слова в правильном порядке
             var maxCount = words[0].Count;
 
             foreach (var wordTuple in words)
             {
                 var fontSize = Math.Max(MinFontSize, MaxFontSize * wordTuple.Count / maxCount);
-                var font = new Font(new FontFamily("Calibri"), fontSize);
+                var font = new Font(fontFamily, fontSize);
                 var size = TextRenderer.MeasureText(wordTuple.Word, font);
                 var rect = layouter.PutNextRectangle(size);
                 wordRects.Add((wordTuple.Word, font, rect));
@@ -57,6 +60,8 @@ namespace TagsCloudVisualization
             bitmap.Save(filepath);
         }
 
+        //сейчас визуализатор отвечает за несколько вещей:по каждому слову собирает данные для отображения, создает картику и наполняет ее
+        //подумай, как можно декомпозировать эту сущность, чтобы каждую ответственность можно было протестировать отдельно?
         private void ConfigureImage(List<Rectangle> rectangles, Point center)
         {
             var maxWidth = rectangles.Max(rect => rect.Width);

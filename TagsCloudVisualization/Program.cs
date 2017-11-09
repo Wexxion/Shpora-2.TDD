@@ -13,15 +13,19 @@ namespace TagsCloudVisualization
     {
         static void Main(string[] args)
         {
+            //чтобы не комментировать функционал, можно работать с аргументами
             DrawRandomRects(2000, "Rect2000");
             //DrawWordCloud(@"..\..\VisualizationData\Hero of our Time.txt", 200, 5);
         }
 
         public static void DrawWordCloud(string source, int topNWords, int minWordLength)
         {
+            //можно проще File.ReadAllText
             var textLines = File.ReadAllLines(source);
             var text = textLines.Aggregate((i, j) => i + "\n" + j);
             var analyzer = new TextAnalyzer(text, minWordLength);
+            //fluent интерфейс тут ни к чему - тебе нужен результат только второго метода, а если методы вызвать в неправильном порядке, то мы получим ошибку.
+            //Получается, нам нужно знать порядок вызова методов, чтобы получить результат не из самого метода, а из поля WordsCounter. Не самый дружелюбный интерфейс получается, да?)
             analyzer
                 .FindAllwords()
                 .CountWords();

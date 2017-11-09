@@ -48,6 +48,7 @@ namespace TagsCloudVisualization.Tests
         [TestCase(500)]
         public void PlaceRectangeWithGivenSize(int count)
         {
+            //не круто обращаться к Program, это должна быть входная точка, не более
             var sizes = Program.GenerateRandomRectSize(count).ToArray();
             var rects = sizes.Select(size => layouter.PutNextRectangle(size));
 

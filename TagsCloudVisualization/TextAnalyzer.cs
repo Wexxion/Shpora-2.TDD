@@ -7,8 +7,11 @@ namespace TagsCloudVisualization
 {
     class TextAnalyzer
     {
-        public string Text { get; }
-        public int MinWordLength { get; }
+        private string Text { get; }
+        private int MinWordLength { get; }
+
+        //для чего это поле публичное? По сути оно нужно только для использования внутри класса.
+        //Тесты не причина показывать кишки.
         public List<string> Words { get; private set; }
         public List<(string Word, int Count)> WordsCounter { get; private set; }
         public TextAnalyzer(string text, int minWordLength = 3)
@@ -21,6 +24,7 @@ namespace TagsCloudVisualization
 
         public TextAnalyzer FindAllwords()
         {
+            //посмотри на другие методы получения слов по регвыру. Такие, чтобы код не марался кастами, например
             var matches = Regex.Matches(Text, @"\b[\w']*\b");
             Words = matches.Cast<Match>()
                 .Select(x => x.Value.ToLower())

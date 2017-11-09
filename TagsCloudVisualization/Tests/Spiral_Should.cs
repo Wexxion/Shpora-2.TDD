@@ -28,8 +28,9 @@ namespace TagsCloudVisualization.Tests
             firstPoint.ShouldBeEquivalentTo(center);
         }
 
+        //проверка на енумерацию - ок, но еще можно проверить, что координаты у следующих точек точно те, что мы ожидаем.
         [TestCaseSource("TestCasesForSpiralPontsTest")]
-        public void ShoultReturnPointsOnSpiral(IEnumerable<Point> expectedPoints, int count, int offset)
+        public void ReturnPointsOnSpiral(IEnumerable<Point> expectedPoints, int count, int offset)
         {
             var points = new List<Point>();
             for (var i = 0; i < count; i++)
