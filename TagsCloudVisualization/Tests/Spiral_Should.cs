@@ -23,18 +23,17 @@ namespace TagsCloudVisualization.Tests
         [Test]
         public void ReturnFirstPointAsCenter()
         {
-            var firstPoint = spiral.NextPoint;
+            var firstPoint = spiral.GetNextPoint();
 
             firstPoint.ShouldBeEquivalentTo(center);
         }
 
-        //проверка на енумерацию - ок, но еще можно проверить, что координаты у следующих точек точно те, что мы ожидаем.
         [TestCaseSource("TestCasesForSpiralPontsTest")]
         public void ReturnPointsOnSpiral(IEnumerable<Point> expectedPoints, int count, int offset)
         {
             var points = new List<Point>();
             for (var i = 0; i < count; i++)
-                points.Add(spiral.NextPoint);
+                points.Add(spiral.GetNextPoint());
 
             points.Should().HaveCount(count);
             points.Skip(offset).Should().Equal(expectedPoints);

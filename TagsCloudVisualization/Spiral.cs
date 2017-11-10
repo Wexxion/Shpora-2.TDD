@@ -13,15 +13,11 @@ namespace TagsCloudVisualization
         private const int DistanseBetweenPoints = 2;
         private const int RotationDirection = 1; //Clockwise if positive
 
-        //обычно доступ к свойству не подразумевает изменение состояния объекта
-        public Point NextPoint
+        public Point GetNextPoint()
         {
-            get
-            {
-                var res = enumerator.Current;
-                enumerator.MoveNext();
-                return res;
-            }
+            var res = enumerator.Current;
+            enumerator.MoveNext();
+            return res;
         }
 
         public Spiral(Point centerPoint)
@@ -30,10 +26,6 @@ namespace TagsCloudVisualization
             enumerator = GetEnumerator();
             enumerator.MoveNext();
         }
-
-        //Есть некоторые причины, по которым нужно избегать использования деструкторов. Давай ты погуглишь и ответишь в личке?)
-        // И еще попробуешь без него. Кстати, зачем тут вообще Dispose?
-        ~Spiral() => enumerator.Dispose();
 
         public IEnumerator<Point> GetEnumerator()
         {

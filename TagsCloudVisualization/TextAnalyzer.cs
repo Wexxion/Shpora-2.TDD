@@ -7,41 +7,49 @@ namespace TagsCloudVisualization
 {
     class TextAnalyzer
     {
-        private string Text { get; }
-        private int MinWordLength { get; }
-
-        //для чего это поле публичное? По сути оно нужно только для использования внутри класса.
-        //Тесты не причина показывать кишки.
-        public List<string> Words { get; private set; }
-        public List<(string Word, int Count)> WordsCounter { get; private set; }
-        public TextAnalyzer(string text, int minWordLength = 3)
+        private readonly string text;
+        private readonly int minWordLength;
+        private readonly int maxFontSize;
+        private readonly int minFontSize;
+        private readonly int topNWords;
+        public TextAnalyzer(string text, int topNWords = 0, int minWordLength = 3, int maxFontSize = 96, int minFontSize = 24)
         {
             if(string.IsNullOrEmpty(text))
                 throw new ArgumentException("String can't be null or empty!");
-            Text = text;
-            MinWordLength = minWordLength;
+            this.text = text;
+            this.topNWords = topNWords;
+            this.maxFontSize = maxFontSize;
+            this.minFontSize = minFontSize;
+            this.minWordLength = minWordLength;
         }
 
-        public TextAnalyzer FindAllwords()
+        private IEnumerable<string> FindAllwords()
         {
-            //посмотри на другие методы получения слов по регвыру. Такие, чтобы код не марался кастами, например
-            var matches = Regex.Matches(Text, @"\b[\w']*\b");
-            Words = matches.Cast<Match>()
-                .Select(x => x.Value.ToLower())
-                .Where(y => !string.IsNullOrEmpty(y) && y.Length > MinWordLength)
-                .ToList();
-            return this;
+            var delims = new[] { '.', ',', ';', ' ', '\n', '?', '!', ':', '(', ')', '[', ']', '{', '}', '\'', '"', '–' };
+            return text.Split(delims, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.ToLower())
+                .Where(y => y.Length > minWordLength);
         }
 
-        public TextAnalyzer CountWords()
+        private IEnumerable<(string Word, int Count)> CountWords(IEnumerable<string> words)
         {
-            if (Words == null) throw new InvalidOperationException("You need to find all words first!");
-            WordsCounter = Words
+            return words
                 .GroupBy(x => x)
                 .Select(y => (y.Key, y.Count()))
-                .OrderByDescending(z => z.Item2)
-                .ToList();
-            return this;
+                .OrderByDescending(z => z.Item2);
+        }
+
+        public IEnumerable<Word> GetWordsWithSizes()
+        {
+            var allWords = FindAllwords();
+            var wordsCounter = topNWords == 0 ? 
+                CountWords(allWords).ToList() : CountWords(allWords).Take(topNWords).ToList();
+            var maxCount = wordsCounter.First().Count;
+            foreach (var wordPair in wordsCounter)
+            {
+                var fontSize = Math.Max(minFontSize, maxFontSize * wordPair.Count / maxCount);
+                yield return new Word(wordPair.Word, wordPair.Count, fontSize);
+            }
         }
     }
 }

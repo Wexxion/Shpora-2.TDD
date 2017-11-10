@@ -8,7 +8,7 @@ namespace TagsCloudVisualization
 {
     public static class Geometry
     {
-        public static Size CalculateImageSize(List<Rectangle> rectangles)
+        public static Size CalculateImageSize(IReadOnlyCollection<Rectangle> rectangles)
         {
             var minX = rectangles.Min(rect => rect.X);
             var minY = rectangles.Min(rect => rect.Y);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Drawing;
 
 namespace TagsCloudVisualization
@@ -8,14 +7,15 @@ namespace TagsCloudVisualization
     class CircularCloudLayouter
     {
         private readonly Spiral spiral;
-        //хоть поле и readonly, можно изи изменять содержимое листа
-        public readonly List<Rectangle> Rectangles = new List<Rectangle>();
+        private readonly List<Rectangle> rectangles;
+        public IReadOnlyCollection<Rectangle> Rectangles => rectangles.AsReadOnly();
         public readonly Point Center;
         public CircularCloudLayouter(Point center)
         {
             if (center.X < 0 || center.Y < 0)
                 throw new ArgumentException("Center with negative coordinates is not allowed!");
             Center = center;
+            rectangles = new List<Rectangle>();
             spiral = new Spiral(center);
         }
 
@@ -23,26 +23,15 @@ namespace TagsCloudVisualization
         {
             while (true)
             {
-                var point = spiral.NextPoint;
+                var point = spiral.GetNextPoint();
                 var rectangle = new Rectangle(point, rectangleSize);
                 
-                if (rectangle.IntersectsWith(Rectangles))
+                if (rectangle.IntersectsWith(rectangles))
                     continue;
                 
-                Rectangles.Add(rectangle);
+                rectangles.Add(rectangle);
                 return rectangle;
             }
-        }
-    }
-
-    public static class RectangleExtesions
-    {
-        public static bool IntersectsWith(this Rectangle rect, List<Rectangle> rectangles)
-        {
-            for (var i = rectangles.Count - 1; i >= 0; i--)
-                if (rect.IntersectsWith(rectangles[i]))
-                    return true;
-            return false;
         }
     }
 }

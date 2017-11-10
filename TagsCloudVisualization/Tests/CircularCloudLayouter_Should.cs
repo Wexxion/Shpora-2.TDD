@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -49,7 +46,7 @@ namespace TagsCloudVisualization.Tests
         public void PlaceRectangeWithGivenSize(int count)
         {
             //не круто обращаться к Program, это должна быть входная точка, не более
-            var sizes = Program.GenerateRandomRectSize(count).ToArray();
+            var sizes = Extensions.GenerateRandomRectSize(count).ToArray();
             var rects = sizes.Select(size => layouter.PutNextRectangle(size));
 
             sizes.Should().Equal(rects.Select(rect => rect.Size));
@@ -60,7 +57,7 @@ namespace TagsCloudVisualization.Tests
         [TestCase(500)]
         public void PlaceAllGivenRects(int count)
         {
-            foreach (var size in Program.GenerateRandomRectSize(count))
+            foreach (var size in Extensions.GenerateRandomRectSize(count))
                 layouter.PutNextRectangle(size);
 
             layouter.Rectangles.Should().HaveCount(count);
@@ -71,7 +68,7 @@ namespace TagsCloudVisualization.Tests
         [TestCase(500)]
         public void NotIntersectRectangles(int count)
         {
-            foreach (var size in Program.GenerateRandomRectSize(count))
+            foreach (var size in Extensions.GenerateRandomRectSize(count))
                 layouter.PutNextRectangle(size);
             foreach (var rectangle in layouter.Rectangles)
             {
@@ -102,10 +99,5 @@ namespace TagsCloudVisualization.Tests
 
             Console.WriteLine($"Tag cloud visualization saved to file {filepath}");
         }
-    }
-
-    static class Extensions
-    {
-        public static List<T> ReferenceClone<T>(this List<T> listToClone) => listToClone.Select(item => item).ToList();
     }
 }

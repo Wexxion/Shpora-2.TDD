@@ -8,48 +8,36 @@ namespace TagsCloudVisualization
 {
     class TagCloudVizualizer
     {
-        private Bitmap bitmap;
         private Graphics graphics;
-        private readonly string filepath;
+        private readonly Image image;
         private readonly Random rnd = new Random();
-        
-        private readonly FontFamily fontFamily = new FontFamily("Calibri");
-        private const int MaxFontSize = 96;
-        private const int MinFontSize = 24;
 
-        public TagCloudVizualizer(string filepath) => this.filepath = filepath;
+        public TagCloudVizualizer(string filepath) => image = new Image(filepath);
 
-        public void DrawTagCloud(List<(string Word, int Count)> words)
+        public void DrawTagCloud(TextAnalyzer textAnalyzer)
         {
-            var wordRects = new List<(string Word, Font Font, Rectangle rect)>();
+
             var center = Point.Empty;
             var layouter = new CircularCloudLayouter(center);
-            //магическое знание о том, что сверху нам должны отдать слова в правильном порядке
-            var maxCount = words[0].Count;
+            var words = textAnalyzer.GetWordsWithSizes().ToArray();
 
-            foreach (var wordTuple in words)
-            {
-                var fontSize = Math.Max(MinFontSize, MaxFontSize * wordTuple.Count / maxCount);
-                var font = new Font(fontFamily, fontSize);
-                var size = TextRenderer.MeasureText(wordTuple.Word, font);
-                var rect = layouter.PutNextRectangle(size);
-                wordRects.Add((wordTuple.Word, font, rect));
-            }
+            foreach (var word in words)
+                word.LayoutRectangle = layouter.PutNextRectangle(word.Size);
 
-            ConfigureImage(layouter.Rectangles, center);
+            graphics = image.Configure(layouter.Rectangles, center);
 
-            foreach (var stringData in wordRects)
+            foreach (var word in words)
             {
                 var brush = new SolidBrush(GetRandomColor());
-                graphics.DrawString(stringData.Word, stringData.Font, brush, stringData.rect);
+                graphics.DrawString(word.Value, word.Font, brush, word.LayoutRectangle);
             }
                 
-            bitmap.Save(filepath);
+            image.Save();
         }
 
-        public void DrawRectCloud(List<Rectangle> rectangles, Point center)
+        public void DrawRectCloud(IReadOnlyCollection<Rectangle> rectangles, Point center)
         {
-            ConfigureImage(rectangles, center);
+            graphics = image.Configure(rectangles, center);
 
             foreach (var rectangle in rectangles)
             {
@@ -57,25 +45,7 @@ namespace TagsCloudVisualization
                 graphics.DrawRectangle(new Pen(Color.Black), rectangle);
             }
 
-            bitmap.Save(filepath);
-        }
-
-        //сейчас визуализатор отвечает за несколько вещей:по каждому слову собирает данные для отображения, создает картику и наполняет ее
-        //подумай, как можно декомпозировать эту сущность, чтобы каждую ответственность можно было протестировать отдельно?
-        private void ConfigureImage(List<Rectangle> rectangles, Point center)
-        {
-            var maxWidth = rectangles.Max(rect => rect.Width);
-            var maxHeight = rectangles.Max(rect => rect.Height);
-            var size = Geometry.CalculateImageSize(rectangles);
-
-            bitmap = new Bitmap(size.Width, size.Height);
-            graphics = Graphics.FromImage(bitmap);
-
-            var dx = size.Width / 2 - center.X - maxWidth / 2;
-            var dy = size.Height / 2 - center.Y - maxHeight / 2;
-            graphics.TranslateTransform(dx, dy);
-
-            graphics.Clear(Color.White);
+            image.Save();
         }
 
         private Color GetRandomColor()

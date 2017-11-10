@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -25,19 +26,11 @@ namespace TagsCloudVisualization.Tests
             ExpectedResult = new []{"sentenses","another","much","love", "testing"})]
         public List<string> CorrectlySplitText_And_DeleteWordsWithLenLessThan3_WhenSimpleString(string text, int count)
         {
-            var textAnalyzer = new TextAnalyzer(text)
-                .FindAllwords();
-            var wordsList = textAnalyzer.Words;
+            var textAnalyzer = new TextAnalyzer(text);
+            var wordsList = textAnalyzer.GetWordsWithSizes().Select(word => word.Value).ToList();
             wordsList.Should().HaveCount(count);
 
             return wordsList;
-        }
-
-        [TestCase("Abracadabra")]
-        public void ThrowInvalidOperationException_When_CallCount_And_WordsNotFound(string text)
-        {
-            Action act = () => new TextAnalyzer(text).CountWords();
-            act.ShouldThrow<InvalidOperationException>().WithMessage("*find*words*");
         }
 
         private static IEnumerable TestCasesForWordsCounterTest()
@@ -62,13 +55,11 @@ namespace TagsCloudVisualization.Tests
         [TestCaseSource("TestCasesForWordsCounterTest")]
         public List<(string Word, int Count)> CorrectlyCountWords_OnSimpleStrings(string text, int count)
         {
-            var textAnalyzer = new TextAnalyzer(text)
-                .FindAllwords()
-                .CountWords();
-            var wordsCounter = textAnalyzer.WordsCounter;
-            wordsCounter.Should().HaveCount(count);
+            var textAnalyzer = new TextAnalyzer(text);
+            var words = textAnalyzer.GetWordsWithSizes().Select(word => (word.Value, word.Count)).ToList();
+            words.Should().HaveCount(count);
 
-            return wordsCounter;
+            return words;
         }
     }
 }

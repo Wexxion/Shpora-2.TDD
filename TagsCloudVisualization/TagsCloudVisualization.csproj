@@ -55,7 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CircularCloudLayouter.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Geometry.cs" />
+    <Compile Include="Image.cs" />
     <Compile Include="TagCloudVizualizer.cs" />
     <Compile Include="Tests\CircularCloudLayouter_Should.cs" />
     <Compile Include="Program.cs" />
@@ -65,6 +67,7 @@
     <Compile Include="Tests\Geometry_Should.cs" />
     <Compile Include="TextAnalyzer.cs" />
     <Compile Include="Tests\TextAnalyzer_Should.cs" />
+    <Compile Include="Word.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

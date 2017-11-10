@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TagsCloudVisualization
 {
@@ -13,42 +8,61 @@ namespace TagsCloudVisualization
     {
         static void Main(string[] args)
         {
-            //чтобы не комментировать функционал, можно работать с аргументами
-            DrawRandomRects(2000, "Rect2000");
-            //DrawWordCloud(@"..\..\VisualizationData\Hero of our Time.txt", 200, 5);
+            if (args.Length == 0)
+            {
+                PrintUsage();
+                args = new[] { "Rect 2000" };
+            }
+
+            switch (args[0])
+            {
+                case "Rect":
+                {
+                    var n = int.Parse(args[1]);
+                    DrawRandomRects(n, $"Rect{n}");
+                    break;
+                }
+                case "Words":
+                {
+                    var path = args[1];
+                    var n = int.Parse(args[2]);
+                    var m = int.Parse(args[3]);
+                    DrawWordCloud(path, n, m);
+                    break;
+                }
+                default:
+                    PrintUsage();
+                    break;
+            }
+        }
+
+        private static void PrintUsage()
+        {
+            Console.WriteLine("Usage:");
+            Console.WriteLine("\tTo draw Rects: [Rect N] where:");
+            Console.WriteLine("\t\t N - number of rects. This is standart value for program");
+            Console.WriteLine("\tTo draw WordCloud: [Words PATH N M] where:");
+            Console.WriteLine("\t\t PATH - path to file with text");
+            Console.WriteLine("\t\t N - topNwords, 0 for all");
+            Console.WriteLine("\t\t M - min word length, default is 3");
         }
 
         public static void DrawWordCloud(string source, int topNWords, int minWordLength)
         {
-            //можно проще File.ReadAllText
-            var textLines = File.ReadAllLines(source);
-            var text = textLines.Aggregate((i, j) => i + "\n" + j);
-            var analyzer = new TextAnalyzer(text, minWordLength);
-            //fluent интерфейс тут ни к чему - тебе нужен результат только второго метода, а если методы вызвать в неправильном порядке, то мы получим ошибку.
-            //Получается, нам нужно знать порядок вызова методов, чтобы получить результат не из самого метода, а из поля WordsCounter. Не самый дружелюбный интерфейс получается, да?)
-            analyzer
-                .FindAllwords()
-                .CountWords();
-            var words = analyzer.WordsCounter.Take(topNWords).ToList();
+            var text = File.ReadAllText(source);
+            var analyzer = new TextAnalyzer(text, minWordLength, topNWords);
             var viz = new TagCloudVizualizer(@"..\..\VisualizationData\WordCloud.png");
-            viz.DrawTagCloud(words);
+            viz.DrawTagCloud(analyzer);
         }
 
         public static void DrawRandomRects(int count, string name)
         {
             var center = Point.Empty;
             var layouter = new CircularCloudLayouter(center);
-            foreach (var size in GenerateRandomRectSize(count))
+            foreach (var size in Extensions.GenerateRandomRectSize(count))
                 layouter.PutNextRectangle(size);
             var viz = new TagCloudVizualizer($@"..\..\VisualizationData\{name}.png");
             viz.DrawRectCloud(layouter.Rectangles, center);
-        }
-
-        public static IEnumerable<Size> GenerateRandomRectSize(int count = 1)
-        {
-            var rnd = new Random();
-            for (var i = 0; i < count; i++)
-                yield return new Size(rnd.Next(35, 75), rnd.Next(15, 50));
         }
     }
 }
