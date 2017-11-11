@@ -25,6 +25,7 @@ namespace TagsCloudVisualization
                 case "Words":
                 {
                     var path = args[1];
+                    //мелочь - у тебя есть дефолтные значения, можно сделать эти параметры не обязательными
                     var n = int.Parse(args[2]);
                     var m = int.Parse(args[3]);
                     DrawWordCloud(path, n, m);
@@ -50,6 +51,7 @@ namespace TagsCloudVisualization
         public static void DrawWordCloud(string source, int topNWords, int minWordLength)
         {
             var text = File.ReadAllText(source);
+            //не хорошо, когда метод принимает аргументы в одном порядке, а отдает их другом, особенно, когда они одного типа, в этом сложно разбираться 
             var analyzer = new TextAnalyzer(text, minWordLength, topNWords);
             var viz = new TagCloudVizualizer(@"..\..\VisualizationData\WordCloud.png");
             viz.DrawTagCloud(analyzer);

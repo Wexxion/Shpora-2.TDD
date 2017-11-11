@@ -19,6 +19,8 @@ namespace TagsCloudVisualization
 
             var center = Point.Empty;
             var layouter = new CircularCloudLayouter(center);
+            //TextAnalyzer используется только для того, чтобы взять из него слова. Можно же сразу слова передать?
+            //Есть какой-то смысл возвращать из GetWordsWithSizes() IEnumerable, а не готовую коллекцию типа массива?
             var words = textAnalyzer.GetWordsWithSizes().ToArray();
 
             foreach (var word in words)
@@ -31,7 +33,6 @@ namespace TagsCloudVisualization
                 var brush = new SolidBrush(GetRandomColor());
                 graphics.DrawString(word.Value, word.Font, brush, word.LayoutRectangle);
             }
-                
             image.Save();
         }
 

@@ -42,8 +42,9 @@ namespace TagsCloudVisualization
         public IEnumerable<Word> GetWordsWithSizes()
         {
             var allWords = FindAllwords();
-            var wordsCounter = topNWords == 0 ? 
-                CountWords(allWords).ToList() : CountWords(allWords).Take(topNWords).ToList();
+            var wordsCounter = topNWords == 0
+                ? CountWords(allWords).ToList()
+                : CountWords(allWords).Take(topNWords).ToList();
             var maxCount = wordsCounter.First().Count;
             foreach (var wordPair in wordsCounter)
             {
