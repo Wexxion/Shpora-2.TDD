@@ -11,7 +11,7 @@ namespace TagsCloudVisualization
             if (args.Length == 0)
             {
                 PrintUsage();
-                args = new[] { "Rect 2000" };
+                args = new[] {"Words", @"..\..\VisualizationData\Hero of our Time.txt", "3", "50"};
             }
 
             switch (args[0])
@@ -25,10 +25,18 @@ namespace TagsCloudVisualization
                 case "Words":
                 {
                     var path = args[1];
-                    //мелочь - у тебя есть дефолтные значения, можно сделать эти параметры не обязательными
-                    var n = int.Parse(args[2]);
-                    var m = int.Parse(args[3]);
-                    DrawWordCloud(path, n, m);
+                    switch (args.Length)
+                    {
+                        case 3:
+                            DrawWordCloud(path, minWordLength: int.Parse(args[2]));
+                            break;
+                        case 4:
+                            DrawWordCloud(path, minWordLength: int.Parse(args[2]), topNWords: int.Parse(args[3]));
+                            break;
+                        default:
+                            DrawWordCloud(path);
+                            break;
+                    }
                     break;
                 }
                 default:
@@ -42,19 +50,23 @@ namespace TagsCloudVisualization
             Console.WriteLine("Usage:");
             Console.WriteLine("\tTo draw Rects: [Rect N] where:");
             Console.WriteLine("\t\t N - number of rects. This is standart value for program");
-            Console.WriteLine("\tTo draw WordCloud: [Words PATH N M] where:");
+            Console.WriteLine("\tTo draw WordCloud: [Words PATH [M] [N]] where:");
             Console.WriteLine("\t\t PATH - path to file with text");
-            Console.WriteLine("\t\t N - topNwords, 0 for all");
             Console.WriteLine("\t\t M - min word length, default is 3");
+            Console.WriteLine("\t\t N - topNwords, 0 for all");
         }
 
-        public static void DrawWordCloud(string source, int topNWords, int minWordLength)
+        public static void DrawWordCloud(string source, int minWordLength = 3, int topNWords = 0)
         {
             var text = File.ReadAllText(source);
-            //не хорошо, когда метод принимает аргументы в одном порядке, а отдает их другом, особенно, когда они одного типа, в этом сложно разбираться 
             var analyzer = new TextAnalyzer(text, minWordLength, topNWords);
             var viz = new TagCloudVizualizer(@"..\..\VisualizationData\WordCloud.png");
-            viz.DrawTagCloud(analyzer);
+            var words = analyzer.GetWordsWithSizes();
+            var center = Point.Empty;
+            var layouter = new CircularCloudLayouter(center);
+            foreach (var word in words)
+                word.LayoutRectangle = layouter.PutNextRectangle(word.Size);
+            viz.DrawTagCloud(words, center);
         }
 
         public static void DrawRandomRects(int count, string name)

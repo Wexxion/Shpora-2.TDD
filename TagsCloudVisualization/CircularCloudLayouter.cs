@@ -8,7 +8,6 @@ namespace TagsCloudVisualization
     {
         private readonly Spiral spiral;
         private readonly List<Rectangle> rectangles;
-        //тут прото на подумать: коллекция теперь ридонли, но с элементами коллекции ты можешь делать что угодно (изменять размеры, например). Что можно с этим поделать?
         public IReadOnlyCollection<Rectangle> Rectangles => rectangles.AsReadOnly();
         public readonly Point Center;
         public CircularCloudLayouter(Point center)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace TagsCloudVisualization
 {
@@ -12,7 +11,8 @@ namespace TagsCloudVisualization
         private readonly int maxFontSize;
         private readonly int minFontSize;
         private readonly int topNWords;
-        public TextAnalyzer(string text, int topNWords = 0, int minWordLength = 3, int maxFontSize = 96, int minFontSize = 24)
+        private readonly int delta;
+        public TextAnalyzer(string text, int minWordLength = 3, int topNWords = 0, int maxFontSize = 72, int minFontSize = 20)
         {
             if(string.IsNullOrEmpty(text))
                 throw new ArgumentException("String can't be null or empty!");
@@ -21,6 +21,7 @@ namespace TagsCloudVisualization
             this.maxFontSize = maxFontSize;
             this.minFontSize = minFontSize;
             this.minWordLength = minWordLength;
+            delta = minFontSize * 2 / 5;
         }
 
         private IEnumerable<string> FindAllwords()
@@ -39,18 +40,20 @@ namespace TagsCloudVisualization
                 .OrderByDescending(z => z.Item2);
         }
 
-        public IEnumerable<Word> GetWordsWithSizes()
+        public List<Word> GetWordsWithSizes()
         {
+            var result = new List<Word>();
             var allWords = FindAllwords();
             var wordsCounter = topNWords == 0
                 ? CountWords(allWords).ToList()
                 : CountWords(allWords).Take(topNWords).ToList();
-            var maxCount = wordsCounter.First().Count;
+            var currentFontSize = maxFontSize;
             foreach (var wordPair in wordsCounter)
             {
-                var fontSize = Math.Max(minFontSize, maxFontSize * wordPair.Count / maxCount);
-                yield return new Word(wordPair.Word, wordPair.Count, fontSize);
+                result.Add(new Word(wordPair.Word, wordPair.Count, currentFontSize));
+                if (currentFontSize - delta > minFontSize) currentFontSize -= delta;
             }
+            return result;
         }
     }
 }

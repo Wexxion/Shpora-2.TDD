@@ -11,5 +11,5 @@
 ## 10000 прямоугольников
 ![Screenshot](VisualizationData/Rect10000.png)
 
-## WordCloud для "Герой нашего времени", Топ 200 слов, минимальная длина слова 5
+## WordCloud для "Герой нашего времени", минимальная длина слова 3, Топ 50 слов
 ![Screenshot](VisualizationData/WordCloud.png)

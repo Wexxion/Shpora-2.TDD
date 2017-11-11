@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace TagsCloudVisualization
 {
@@ -14,25 +13,16 @@ namespace TagsCloudVisualization
 
         public TagCloudVizualizer(string filepath) => image = new Image(filepath);
 
-        public void DrawTagCloud(TextAnalyzer textAnalyzer)
+        public void DrawTagCloud(List<Word> words, Point center)
         {
-
-            var center = Point.Empty;
-            var layouter = new CircularCloudLayouter(center);
-            //TextAnalyzer используется только для того, чтобы взять из него слова. Можно же сразу слова передать?
-            //Есть какой-то смысл возвращать из GetWordsWithSizes() IEnumerable, а не готовую коллекцию типа массива?
-            var words = textAnalyzer.GetWordsWithSizes().ToArray();
-
-            foreach (var word in words)
-                word.LayoutRectangle = layouter.PutNextRectangle(word.Size);
-
-            graphics = image.Configure(layouter.Rectangles, center);
+            graphics = image.Configure(words.Select(word => word.LayoutRectangle).ToList(), center);
 
             foreach (var word in words)
             {
                 var brush = new SolidBrush(GetRandomColor());
                 graphics.DrawString(word.Value, word.Font, brush, word.LayoutRectangle);
             }
+
             image.Save();
         }
 
